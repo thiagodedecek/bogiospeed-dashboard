@@ -36,12 +36,11 @@ lista_clientes = ["CASIT", "SOTRADE", "MAURICE WAND", "INVERAS", "OPTIMAL", "SAN
 lista_fornecedores = ["None / Nessuno", "NOU TRANSPORT", "ALA", "SANARE/TEAM FOT", "CARO", "SOGEDIM", "LIGENTIA", "GIOBBIO SRL", "MOVEST", "NOSTA", "BOXLINE", "CONTESSA", "SPEEDY TRUCK", "JANINIA", "CONTESSI / SPEEDY", "SPEEDY, CONTE", "SPEEDY TROCK", "KONTISPED", "EVOLOG", "RONZIO", "TRANSMEC GROUP", "SPEDIPRA", "STANTE", "CASNATE-GRANDATE", "DESTINY PARZ", "TB LOG", "DRZYZGA", "COMBI LINE", "VAREDO", "TIREX", "DOGANALI", "RAOTRANS", "GABRIEL TRANSPORT", "GIORGIO OBRIZZI", "IN TIME EXPRESS", "CARBOX TARROS GRUP", "PTO LOGISTIC SOLUTIONS", "OP-SA LOGISTIKA D.O.O.", "RIGOTTO", "PORTUGALENCE", "NOLO RAOTRANS", "FOX LOGISTICS SA", "NARDO LOGISTICS Sp. zo.o.", "KONSOLIDA", "AUBERTRANS", "BERGWERFF", "MAGNUS LOGISTICS", "Other / Altro"]
 
 sheet = connect()
-# Lógica de segurança para planilha vazia
 try:
     data = sheet.get_all_records()
     df = pd.DataFrame(data)
 except:
-    df = pd.DataFrame(columns=['JOB Nº', 'DATE', 'CUSTOMER', 'KIND', 'SUPPLIER', 'SUPPLIER II', 'SOLD', 'BUYER', 'BUYER II', 'PROFIT', 'CLOSED', 'INV I', 'INV II', 'PLATE Nº'])
+    df = pd.DataFrame(columns=['JOB Nº', 'DATE', 'CUSTOMER', 'KIND', 'SUPPLIER', 'SUPPLIER II', 'SOLD', 'BUYER', 'BUYER II', 'PRIFIT', 'CLOSED', 'INV I', 'INV II', 'PLATE Nº'])
 
 # --- 3. HEADER & DASHBOARD ---
 st.image("BOGIO-SPEED-Logo-1-1536x217.png", width=350)
@@ -50,7 +49,7 @@ st.title("Invoices Control & Management")
 if not df.empty:
     total_in = pd.to_numeric(df['SOLD'], errors='coerce').sum()
     total_out = pd.to_numeric(df['BUYER'], errors='coerce').sum() + pd.to_numeric(df['BUYER II'], errors='coerce').sum()
-    net_balance = pd.to_numeric(df['PROFIT'], errors='coerce').sum()
+    net_balance = pd.to_numeric(df['PRIFIT'], errors='coerce').sum()
 
     m1, m2, m3 = st.columns(3)
     with m1:
@@ -59,8 +58,6 @@ if not df.empty:
         st.markdown(f'<div class="metric-card card-expense"><p>Total Expenses</p><h2 style="color:#dc3545;">€ {total_out:,.2f}</h2></div>', unsafe_allow_html=True)
     with m3:
         st.markdown(f'<div class="metric-card card-profit"><p>Net Balance</p><h2 style="color:#007bff;">€ {net_balance:,.2f}</h2></div>', unsafe_allow_html=True)
-else:
-    st.info("The database is currently empty. Please add records to start.")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -92,23 +89,24 @@ with st.expander("➕ ADD NEW INVOICE", expanded=True):
             f_pay2 = st.number_input("Buyer II Cost (€)", min_value=0.0, format="%.2f")
             f_inv2 = st.text_input("Invoice Nº II")
 
-       if st.form_submit_button("SAVE DATA"):
+        if st.form_submit_button("SAVE DATA"):
             f_profit = f_sold - f_pay1 - f_pay2
             new_row = [f_job, str(f_date), f_client, f_kind, f_supp1, f_supp2, f_sold, f_pay1, f_pay2, f_profit, str(f_closed), f_inv1, f_inv2, f_plate]
             
-            # Localiza a primeira linha vazia real
-            # Isso evita pular 1000 linhas se houver formatação fantasma
-            next_row = len(sheet.col_values(1)) + 1
+            # Lógica para salvar na PRÓXIMA linha útil (evita as 1000 linhas)
+            #
+            all_values = sheet.col_values(1)
+            next_row = len(all_values) + 1
             sheet.insert_row(new_row, next_row)
             
-            st.success("Invoice Saved!")
+            st.success("Invoice Saved Successfully!")
             st.rerun()
 
 # --- 5. HISTÓRICO & EDIÇÃO ---
 st.markdown("---")
 if not df.empty:
     st.subheader("Registered Invoices")
-    st.dataframe(df[['JOB Nº', 'DATE', 'CUSTOMER', 'SOLD', 'PROFIT', 'PLATE Nº']].tail(15), use_container_width=True)
+    st.dataframe(df[['JOB Nº', 'DATE', 'CUSTOMER', 'SOLD', 'PRIFIT', 'PLATE Nº']].tail(15), use_container_width=True)
 
     with st.expander("📝 EDIT / UPDATE EXISTING JOB"):
         job_list = df['JOB Nº'].astype(str).unique().tolist()
