@@ -92,10 +92,15 @@ with st.expander("➕ ADD NEW INVOICE", expanded=True):
             f_pay2 = st.number_input("Buyer II Cost (€)", min_value=0.0, format="%.2f")
             f_inv2 = st.text_input("Invoice Nº II")
 
-        if st.form_submit_button("SAVE DATA"):
+       if st.form_submit_button("SAVE DATA"):
             f_profit = f_sold - f_pay1 - f_pay2
             new_row = [f_job, str(f_date), f_client, f_kind, f_supp1, f_supp2, f_sold, f_pay1, f_pay2, f_profit, str(f_closed), f_inv1, f_inv2, f_plate]
-            sheet.append_row(new_row)
+            
+            # Localiza a primeira linha vazia real
+            # Isso evita pular 1000 linhas se houver formatação fantasma
+            next_row = len(sheet.col_values(1)) + 1
+            sheet.insert_row(new_row, next_row)
+            
             st.success("Invoice Saved!")
             st.rerun()
 
