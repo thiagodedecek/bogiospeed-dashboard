@@ -36,15 +36,18 @@ lista_clientes = ["CASIT", "SOTRADE", "MAURICE WAND", "INVERAS", "OPTIMAL", "SAN
 lista_fornecedores = ["None / Nessuno", "NOU TRANSPORT", "ALA", "SANARE/TEAM FOT", "CARO", "SOGEDIM", "LIGENTIA", "GIOBBIO SRL", "MOVEST", "NOSTA", "BOXLINE", "CONTESSA", "SPEEDY TRUCK", "JANINIA", "CONTESSI / SPEEDY", "SPEEDY, CONTE", "SPEEDY TROCK", "KONTISPED", "EVOLOG", "RONZIO", "TRANSMEC GROUP", "SPEDIPRA", "STANTE", "CASNATE-GRANDATE", "DESTINY PARZ", "TB LOG", "DRZYZGA", "COMBI LINE", "VAREDO", "TIREX", "DOGANALI", "RAOTRANS", "GABRIEL TRANSPORT", "GIORGIO OBRIZZI", "IN TIME EXPRESS", "CARBOX TARROS GRUP", "PTO LOGISTIC SOLUTIONS", "OP-SA LOGISTIKA D.O.O.", "RIGOTTO", "PORTUGALENCE", "NOLO RAOTRANS", "FOX LOGISTICS SA", "NARDO LOGISTICS Sp. zo.o.", "KONSOLIDA", "AUBERTRANS", "BERGWERFF", "MAGNUS LOGISTICS", "Other / Altro"]
 
 sheet = connect()
-data = sheet.get_all_records()
-df = pd.DataFrame(data)
+# Lógica de segurança para planilha vazia
+try:
+    data = sheet.get_all_records()
+    df = pd.DataFrame(data)
+except:
+    df = pd.DataFrame(columns=['JOB Nº', 'DATE', 'CUSTOMER', 'KIND', 'SUPPLIER', 'SUPPLIER II', 'SOLD', 'BUYER', 'BUYER II', 'PRIFIT', 'CLOSED', 'INV I', 'INV II', 'PLATE Nº'])
 
 # --- 3. HEADER & DASHBOARD ---
 st.image("BOGIO-SPEED-Logo-1-1536x217.png", width=350)
 st.title("Invoices Control & Management")
 
 if not df.empty:
-    # LINHA CORRIGIDA (Linha 61-63)
     total_in = pd.to_numeric(df['SOLD'], errors='coerce').sum()
     total_out = pd.to_numeric(df['BUYER'], errors='coerce').sum() + pd.to_numeric(df['BUYER II'], errors='coerce').sum()
     net_balance = pd.to_numeric(df['PRIFIT'], errors='coerce').sum()
@@ -56,11 +59,13 @@ if not df.empty:
         st.markdown(f'<div class="metric-card card-expense"><p>Total Expenses</p><h2 style="color:#dc3545;">€ {total_out:,.2f}</h2></div>', unsafe_allow_html=True)
     with m3:
         st.markdown(f'<div class="metric-card card-profit"><p>Net Balance</p><h2 style="color:#007bff;">€ {net_balance:,.2f}</h2></div>', unsafe_allow_html=True)
+else:
+    st.info("The database is currently empty. Please add records to start.")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
 # --- 4. FORMULÁRIO (ADD NEW) ---
-with st.expander("➕ ADD NEW INVOICE", expanded=False):
+with st.expander("➕ ADD NEW INVOICE", expanded=True):
     with st.form("new_entry", clear_on_submit=True):
         c1, c2, c3 = st.columns(3)
         with c1:
@@ -96,9 +101,9 @@ with st.expander("➕ ADD NEW INVOICE", expanded=False):
 
 # --- 5. HISTÓRICO & EDIÇÃO ---
 st.markdown("---")
-st.subheader("Registered Invoices")
 if not df.empty:
-    st.dataframe(df[['JOB Nº', 'DATE', 'CUSTOMER', 'SOLD', 'PRIFIT', 'PLATE Nº']].tail(15), use_container_width=True)
+    st.subheader("Registered Invoices")
+    st.dataframe(df[['JOB Nº', 'DATE', 'CUSTOMER', 'SOLD', 'PROFIT', 'PLATE Nº']].tail(15), use_container_width=True)
 
     with st.expander("📝 EDIT / UPDATE EXISTING JOB"):
         job_list = df['JOB Nº'].astype(str).unique().tolist()
@@ -117,10 +122,10 @@ if not df.empty:
                     e_buyer2 = st.number_input("Update Buyer II (€)", value=float(curr['BUYER II']))
                 if st.form_submit_button("UPDATE RECORD"):
                     e_profit = e_sold - e_buyer1 - e_buyer2
-                    sheet.update_cell(google_row_idx, 7, e_sold)      # SOLD
-                    sheet.update_cell(google_row_idx, 8, e_buyer1)    # BUYER I
-                    sheet.update_cell(google_row_idx, 9, e_buyer2)    # BUYER II
-                    sheet.update_cell(google_row_idx, 10, e_profit)   # PROFIT
-                    sheet.update_cell(google_row_idx, 14, e_plate)    # PLATE Nº
+                    sheet.update_cell(google_row_idx, 7, e_sold)
+                    sheet.update_cell(google_row_idx, 8, e_buyer1)
+                    sheet.update_cell(google_row_idx, 9, e_buyer2)
+                    sheet.update_cell(google_row_idx, 10, e_profit)
+                    sheet.update_cell(google_row_idx, 14, e_plate)
                     st.success(f"Job {job_to_edit} updated!")
                     st.rerun()
