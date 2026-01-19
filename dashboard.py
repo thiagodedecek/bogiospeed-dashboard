@@ -4,94 +4,123 @@ import pandas as pd
 from google.oauth2.service_account import Credentials
 from datetime import date
 
-# --- 1. SETTINGS & THEME ---
+# --- 1. CONFIGURAÇÃO VISUAL ---
 st.set_page_config(page_title="BogioSpeed Management Portal", page_icon="📊", layout="wide")
 
 st.markdown("""
     <style>
-    .stApp { background-color: #012e67; }
-    h1, h2, h3, h4, p, span, label, .stMarkdown { color: white !important; }
+    .stApp { background-color: #f8f9fa; } /* Fundo claro para destacar os cards */
+    h1, h2, h3, h4, p, span, label, .stMarkdown { color: #012e67 !important; }
+    
+    /* Estilo dos Cards de Somatório (Inspirado na sua imagem) */
     .metric-card {
-        background-color: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 4px 4px 15px rgba(0,0,0,0.4);
+        background-color: white;
+        padding: 20px;
+        border-radius: 15px;
+        text-align: left;
+        border-left: 5px solid #ccc;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    .metric-card h2 { color: #012e67 !important; margin: 0; font-size: 30px; }
-    .metric-card p { color: #555 !important; font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
-    .stButton>button { background-color: #f1c40f; color: #012e67; font-weight: bold; width: 100%; border-radius: 10px; height: 3em; }
-    input, select, textarea, div[data-baseweb="select"] > div { background-color: white !important; color: black !important; }
+    .card-income { border-left-color: #28a745; }
+    .card-expense { border-left-color: #dc3545; }
+    .card-profit { border-left-color: #007bff; }
+    
+    .metric-card h2 { margin: 0; font-size: 28px; }
+    .metric-card p { margin: 0; font-size: 14px; color: #6c757d !important; font-weight: bold; }
+
+    /* Botão Flutuante de Adicionar */
+    .stButton>button {
+        background-color: #5d5fef;
+        color: white;
+        font-weight: bold;
+        border-radius: 8px;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. SECURE CONNECTION ---
-def connect_to_sheets():
+# --- 2. CONEXÃO E DADOS ---
+def connect():
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    try:
-        creds_dict = st.secrets["gcp_service_account_dashboard"] 
-        creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
-        client = gspread.authorize(creds)
-        return client.open("Gestao_BogioSpeed_v2").get_worksheet(0)
-    except Exception as e:
-        st.error(f"Connection Error: {e}")
-        return None
+    creds_dict = st.secrets["gcp_service_account_dashboard"] 
+    creds = Credentials.from_service_account_info(creds_dict, scopes=scope)
+    client = gspread.authorize(creds)
+    return client.open("Gestao_BogioSpeed_v2").get_worksheet(0)
 
-sheet = connect_to_sheets()
+# Listas de Dados que você enviou
+lista_clientes = ["CASIT", "SOTRADE", "MAURICE WAND", "INVERAS", "OPTIMAL", "SANGALLI &", "INDUSTRY S", "CHIMICA CBR", "IL MUSEO IN ERBA ASSOCIAZIONE", "AMP", "SEVERINO ROBECCA", "M&H SOLAR", "SPEDIPRA SRL", "POWER X TECHNOLOGY", "GLOBAL AIR FREI", "T.S.T.", "GLOBAL AIR FREIGHT", "M&M", "2F TRANSPORTI", "D.P.S S.R.L", "ETC ULUSLARARASI TICARET VE DANISMANLIK LTD STI", "CARGILL SRL", "OLYMPUS SPORT AG", "DUCATI ENERGIA SPA", "ERREESSEE SRL", "STOPNOISE ENGINEERING", "OTTO'S AG", "KURT RYSLEY", "TECHNOFORM BAUTEC ITALA SPA", "COMPAGNA TECNICA MOTORI SPA", "SELTE SPA", "INTERBOX SA", "ETNA CARGO ROMANIA SRL", "RALUX SOLAR RACKING SYSTEM SRL", "ADVANCED DISTRIBUTION SPA", "L2 LEONI SRL", "DAVENIA TRADE S.E", "MAGSED AG", "BISELLO TECNOLOGY SYSTEM SRL", "Other / Altro"]
+lista_fornecedores = ["None / Nessuno", "NOU TRANSPORT", "ALA", "SANARE/TEAM FOT", "CARO", "SOGEDIM", "LIGENTIA", "GIOBBIO SRL", "MOVEST", "NOSTA", "BOXLINE", "CONTESSA", "SPEEDY TRUCK", "JANINIA", "CONTESSI / SPEEDY", "SPEEDY, CONTE", "SPEEDY TROCK", "KONTISPED", "EVOLOG", "RONZIO", "TRANSMEC GROUP", "SPEDIPRA", "STANTE", "CASNATE-GRANDATE", "DESTINY PARZ", "TB LOG", "DRZYZGA", "COMBI LINE", "VAREDO", "TIREX", "DOGANALI", "RAOTRANS", "GABRIEL TRANSPORT", "GIORGIO OBRIZZI", "IN TIME EXPRESS", "CARBOX TARROS GRUP", "PTO LOGISTIC SOLUTIONS", "OP-SA LOGISTIKA D.O.O.", "RIGOTTO", "PORTUGALENCE", "NOLO RAOTRANS", "FOX LOGISTICS SA", "NARDO LOGISTICS Sp. zo.o.", "KONSOLIDA", "AUBERTRANS", "BERGWERFF", "MAGNUS LOGISTICS", "Other / Altro"]
 
-if sheet:
-    # --- 3. LOAD DATA FOR DASHBOARD ---
-    data = sheet.get_all_records()
-    df = pd.DataFrame(data)
+sheet = connect()
+data = sheet.get_all_records()
+df = pd.DataFrame(data)
 
-    # Header
-    st.image("BOGIO-SPEED-Logo-1-1536x217.png", width=250)
-    st.title("Business Management Portal")
+# --- 3. DASHBOARD (PAINEL DE SOMATÓRIO) ---
+st.title("Invoices Control")
+st.write(f"User ID: BogioSpeed_Admin")
 
-    # --- 4. TOP METRICS PANEL ---
-    if not df.empty:
-        total_income = pd.to_numeric(df['SOLD']).sum()
-        total_costs = pd.to_numeric(df['BUYER']).sum() + pd.to_numeric(df['BUYER II']).sum()
-        total_profit = pd.to_numeric(df['PRIFIT']).sum()
+if not df.empty:
+    # Garantir que valores sejam numéricos
+    total_in = pd.to_numeric(df['SOLD'], errors='coerce').sum()
+    total_out = pd.to_numeric(df['BUYER'], errors='coerce').sum() + pd.to_numeric(df['BUYER II'], errors='coerce').sum()
+    net_balance = pd.to_numeric(df['PRIFIT'], errors='coerce').sum()
 
-        m1, m2, m3 = st.columns(3)
-        with m1:
-            st.markdown(f'<div class="metric-card"><p>Total Income (Sold)</p><h2>€ {total_income:,.2f}</h2></div>', unsafe_allow_html=True)
-        with m2:
-            st.markdown(f'<div class="metric-card"><p>Total Costs (Expenses)</p><h2>€ {total_costs:,.2f}</h2></div>', unsafe_allow_html=True)
-        with m3:
-            st.markdown(f'<div class="metric-card"><p>Net Profit (Gains)</p><h2 style="color: #2ecc71 !important;">€ {total_profit:,.2f}</h2></div>', unsafe_allow_html=True)
+    m1, m2, m3 = st.columns(3)
+    with m1:
+        st.markdown(f'<div class="metric-card card-income"><p>Total Income</p><h2 style="color:#28a745;">€ {total_in:,.2f}</h2></div>', unsafe_allow_html=True)
+    with m2:
+        st.markdown(f'<div class="metric-card card-expense"><p>Total Expenses</p><h2 style="color:#dc3545;">€ {total_out:,.2f}</h2></div>', unsafe_allow_html=True)
+    with m3:
+        st.markdown(f'<div class="metric-card card-profit"><p>Net Balance</p><h2 style="color:#007bff;">€ {net_balance:,.2f}</h2></div>', unsafe_allow_html=True)
 
-    st.markdown("---")
+st.markdown("<br>", unsafe_allow_html=True)
 
-    # --- 5. ENTRY FORM (The "Colab" experience) ---
-    with st.form("entry_form", clear_on_submit=True):
-        st.subheader("➕ Add New Job Record")
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            job_no = st.text_input("JOB Nº")
-            job_date = st.date_input("DATE", date.today())
-            customer = st.text_input("CUSTOMER")
-        with c2:
-            supplier1 = st.text_input("SUPPLIER I")
-            buyer1 = st.number_input("BUYER I (Cost)", min_value=0.0, format="%.2f")
-            invoice1 = st.text_input("INVOICE Nº I")
-        with c3:
-            supplier2 = st.text_input("SUPPLIER II (Optional)")
-            buyer2 = st.number_input("BUYER II (Cost)", min_value=0.0, format="%.2f")
-            sold = st.number_input("SOLD (Income)", min_value=0.0, format="%.2f")
+# --- 4. FORMULÁRIO (ADD NEW INVOICE) ---
+# Usando Expander para simular a janela de "Adicionar Fatura"
+with st.expander("➕ ADD NEW INVOICE", expanded=False):
+    with st.form("new_entry", clear_on_submit=True):
+        col1, col2 = st.columns(2)
+        with col1:
+            f_job = st.text_input("Invoice Number *")
+            f_client = st.selectbox("Customer *", lista_clientes)
+        with col2:
+            f_date = st.date_input("Date *", date.today())
+            f_sold = st.number_input("Income Value (€) *", min_value=0.0, format="%.2f")
+        
+        st.markdown("---")
+        
+        # Supplier 1
+        st.markdown("**Supplier 1 (Expense)**")
+        s1_col1, s1_col2, s1_col3 = st.columns(3)
+        with s1_col1:
+            f_supp1 = st.selectbox("Supplier 1", lista_fornecedores[1:])
+        with s1_col2:
+            f_pay1 = st.number_input("Value to Pay S1 (€)", min_value=0.0, format="%.2f")
+        with s1_col3:
+            f_inv1 = st.text_input("Supplier Invoice 1")
 
-        st.markdown(" ")
-        save_btn = st.form_submit_button("SAVE RECORD & UPDATE DASHBOARD")
+        # Supplier 2
+        st.markdown("**Supplier 2 (Expense)**")
+        s2_col1, s2_col2, s2_col3 = st.columns(3)
+        with s2_col1:
+            f_supp2 = st.selectbox("Supplier 2", lista_fornecedores)
+        with s2_col2:
+            f_pay2 = st.number_input("Value to Pay S2 (€)", min_value=0.0, format="%.2f")
+        with s2_col3:
+            f_inv2 = st.text_input("Supplier Invoice 2")
 
-    # --- 6. SAVE LOGIC ---
-    if save_btn:
-        profit = sold - buyer1 - buyer2
-        # Order: JOB Nº, DATE, CUSTOMER, KIND, SUPP1, SUPP2, SOLD, BUYER1, BUYER2, PROFIT, CLOSED, INV1, INV2, PLATE
-        new_row = [job_no, str(job_date), customer, "Rodoviário", supplier1, supplier2, sold, buyer1, buyer2, profit, "", invoice1, "", ""]
-        sheet.append_row(new_row)
-        st.success("Record saved! Refreshing totals...")
-        st.rerun() # This reloads the page to update the metrics at the top
+        submit = st.form_submit_button("SAVE INVOICE")
+        
+        if submit:
+            f_profit = f_sold - f_pay1 - f_pay2
+            new_row = [f_job, str(f_date), f_client, "Road", f_supp1, f_supp2, f_sold, f_pay1, f_pay2, f_profit, "", f_inv1, f_inv2, ""]
+            sheet.append_row(new_row)
+            st.success("Invoice Saved Successfully!")
+            st.rerun()
 
-    st.markdown("---")
+# --- 5. TABELAS (HISTÓRICO) ---
+st.markdown("### Registered Invoices")
+if not df.empty:
+    st.dataframe(df[['JOB Nº', 'CUSTOMER', 'SOLD', 'SUPPLIER', 'BUYER', 'PRIFIT']].tail(10), use_container_width=True)
 
-    # --- 7. HISTORY TABLE ---
-    st.subheader("Recent Activity History")
-    if not df.empty:
-        st.dataframe(df[['JOB Nº', 'DATE', 'CUSTOMER', 'SOLD', 'PRIFIT']].tail(10), use_container_width=True)
+st.markdown("### Action History")
+st.info("No recent actions to display.")
