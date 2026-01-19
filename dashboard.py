@@ -41,7 +41,7 @@ try:
     data = sheet.get_all_records()
     df = pd.DataFrame(data)
 except:
-    df = pd.DataFrame(columns=['JOB Nº', 'DATE', 'CUSTOMER', 'KIND', 'SUPPLIER', 'SUPPLIER II', 'SOLD', 'BUYER', 'BUYER II', 'PRIFIT', 'CLOSED', 'INV I', 'INV II', 'PLATE Nº'])
+    df = pd.DataFrame(columns=['JOB Nº', 'DATE', 'CUSTOMER', 'KIND', 'SUPPLIER', 'SUPPLIER II', 'SOLD', 'BUYER', 'BUYER II', 'PROFIT', 'CLOSED', 'INV I', 'INV II', 'PLATE Nº'])
 
 # --- 3. HEADER & DASHBOARD ---
 st.image("BOGIO-SPEED-Logo-1-1536x217.png", width=350)
@@ -50,7 +50,7 @@ st.title("Invoices Control & Management")
 if not df.empty:
     total_in = pd.to_numeric(df['SOLD'], errors='coerce').sum()
     total_out = pd.to_numeric(df['BUYER'], errors='coerce').sum() + pd.to_numeric(df['BUYER II'], errors='coerce').sum()
-    net_balance = pd.to_numeric(df['PRIFIT'], errors='coerce').sum()
+    net_balance = pd.to_numeric(df['PROFIT'], errors='coerce').sum()
 
     m1, m2, m3 = st.columns(3)
     with m1:
