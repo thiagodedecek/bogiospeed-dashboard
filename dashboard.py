@@ -2,94 +2,108 @@ import streamlit as st
 import pandas as pd
 from gspread_pandas import Spread
 
-# 1. Configuração e Layout (Mantendo o que funcionou na image_316abc.png)
+# 1. Configuração e Layout Visual (Baseado na sua vitória de design)
 st.set_page_config(page_title="BoggioSpeed Management", layout="wide")
 
 st.markdown("""
     <style>
     .stApp { background-color: #f8f9fa !important; }
+    
+    /* Estilo dos Cards */
     div[data-testid="column"] div[data-testid="stMetric"] {
         background-color: white !important;
         border-radius: 12px !important;
         padding: 20px !important;
         box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
     }
+    
+    /* Cores das Bordas e Números */
     div[data-testid="column"]:nth-of-type(1) div[data-testid="stMetric"] { border-left: 8px solid #28a745 !important; }
     div[data-testid="column"]:nth-of-type(1) [data-testid="stMetricValue"] > div { color: #28a745 !important; }
-    div[data-testid="column"]:nth-of-type(2) div[data-testid="stMetric"] { border-left: 8px solid #dc3545 !important; }
+    
+    div[data-testid="column"]:nth-of-type(2) div[data-testid="column"] div[data-testid="stMetric"] { border-left: 8px solid #dc3545 !important; }
     div[data-testid="column"]:nth-of-type(2) [data-testid="stMetricValue"] > div { color: #dc3545 !important; }
-    div[data-testid="column"]:nth-of-type(3) div[data-testid="stMetric"] { border-left: 8px solid #6c5ce7 !important; }
+    
+    div[data-testid="column"]:nth-of-type(3) div[data-testid="column"] div[data-testid="stMetric"] { border-left: 8px solid #6c5ce7 !important; }
     div[data-testid="column"]:nth-of-type(3) [data-testid="stMetricValue"] > div { color: #6c5ce7 !important; }
-    h1, h2, h3 { color: #1e3d59 !important; }
+
+    h1, h2, h3, p { color: #1e3d59 !important; }
+    
+    /* Botão Salvar Amarelo (Conforme sua imagem) */
+    div.stButton > button {
+        background-color: #ffc107 !important;
+        color: #000 !important;
+        font-weight: bold !important;
+        border: none !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. Função de Conexão com a Planilha
+# 2. Conexão com Google Sheets
 @st.cache_resource
-def conectar_planilha():
+def load_data():
     try:
-        # Usa o segredo que configuramos com aspas triplas
+        # Puxa as credenciais dos Secrets (TOML)
         creds = st.secrets["gcp_service_account"]
         spread = Spread('Gestao_BogioSpeed_v2', config=creds)
-        return spread
+        df = spread.sheet_to_df(index=None)
+        return spread, df
     except Exception as e:
-        st.error(f"Erro na conexão com a planilha: {e}")
-        return None
+        st.error(f"Erro ao conectar na planilha: {e}")
+        return None, pd.DataFrame()
 
-# Carregar dados
-spread = conectar_planilha()
+spread, df_real = load_data()
 
-if spread:
-    df_real = spread.sheet_to_df(index=None)
-    
-    # 3. Sidebar: Inserção de Dados (Botão e Formulário)
-    with st.sidebar:
-        st.title("🚚 Operações")
-        st.subheader("Inserir Nova Invoice")
-        with st.form("form_novo_registro", clear_on_submit=True):
-            f_nota = st.text_input("Nº NOTA")
-            f_cliente = st.text_input("CLIENTE")
-            f_entrada = st.number_input("ENTRADA (€)", min_value=0.0, step=0.01)
-            f_forn1 = st.text_input("FORNECEDOR 1")
-            f_saida1 = st.number_input("SAÍDA F1 (€)", min_value=0.0, step=0.01)
-            f_forn2 = st.text_input("FORNECEDOR 2", value="-")
-            f_saida2 = st.number_input("SAÍDA F2 (€)", min_value=0.0, step=0.01)
-            
-            submit = st.form_submit_button("GRAVAR DADOS", use_container_width=True)
-            
-            if submit:
-                # Prepara a linha para a planilha
-                nova_linha = [[f_nota, f_cliente, f_entrada, f_forn1, f_saida1, f_forn2, f_saida2]]
-                # Envia para a próxima linha disponível
-                spread.df_to_sheet(pd.DataFrame(nova_linha), index=False, header=False, start='A' + str(len(df_real) + 2))
-                st.success("Gravado com sucesso!")
-                st.rerun()
+# --- CABEÇALHO ---
+try:
+    st.image("logo.png", width=200)
+except:
+    st.header("🚚 BOGIOSPEED SYSTEM")
 
-    # 4. Painel Principal (Cálculos Dinâmicos)
-    st.title("Invoices Control & Management")
-    
-    # Convertendo para numerico para evitar erros de cálculo
-    df_real['ENTRADA (€)'] = pd.to_numeric(df_real['ENTRADA (€)'], errors='coerce').fillna(0)
-    df_real['SAÍDA F1 (€)'] = pd.to_numeric(df_real['SAÍDA F1 (€)'], errors='coerce').fillna(0)
-    df_real['SAÍDA F2 (€)'] = pd.to_numeric(df_real['SAÍDA F2 (€)'], errors='coerce').fillna(0)
+st.title("Invoices Control & Management")
 
-    total_in = df_real['ENTRADA (€)'].sum()
-    total_out = df_real['SAÍDA F1 (€)'].sum() + df_real['SAÍDA F2 (€)'].sum()
+# --- FORMULÁRIO DE INSERÇÃO (Baseado na sua imagem image_3f8d7d.png) ---
+with st.expander("➕ ADD NEW INVOICE", expanded=False):
+    with st.form("invoice_form"):
+        c1, c2 = st.columns(2)
+        with c1:
+            job_no = st.text_input("JOB Nº")
+            customer = st.text_input("Customer")
+            sold_val = st.number_input("Sold Value (€)", min_value=0.0)
+        with c2:
+            cost1 = st.number_input("Cost I (€)", min_value=0.0)
+            cost2 = st.number_input("Cost II (€)", min_value=0.0)
+            plate = st.text_input("Plate Nº")
+        
+        if st.form_submit_button("SAVE DATA"):
+            # Envia para a planilha
+            nova_linha = [[job_no, customer, sold_val, cost1, cost2, plate]]
+            spread.df_to_sheet(pd.DataFrame(nova_linha), index=False, header=False, start='A' + str(len(df_real) + 2))
+            st.success("Dados salvos com sucesso!")
+            st.rerun()
+
+st.divider()
+
+# --- PAINEL DE SOMATÓRIO ---
+st.subheader("Painel de Somatório")
+# Conversão segura para números
+if not df_real.empty:
+    total_in = pd.to_numeric(df_real.iloc[:, 2], errors='coerce').sum() # Sold Value
+    total_out = pd.to_numeric(df_real.iloc[:, 3], errors='coerce').sum() + pd.to_numeric(df_real.iloc[:, 4], errors='coerce').sum()
     saldo = total_in - total_out
-
-    st.subheader("Painel de Somatório")
-    c1, c2, c3 = st.columns(3)
-    with c1: st.metric("Total de Entradas", f"€ {total_in:,.2f}")
-    with c2: st.metric("Total de Saídas", f"€ {total_out:,.2f}")
-    with c3: st.metric("Saldo Líquido", f"€ {saldo:,.2f}")
-
-    st.divider()
-    
-    st.subheader("Faturas Registradas")
-    if not df_real.empty:
-        st.dataframe(df_real, use_container_width=True, hide_index=True)
-    else:
-        st.info("A planilha está vazia no momento.")
-
 else:
-    st.warning("Aguardando conexão com o Google Sheets...")
+    total_in, total_out, saldo = 0, 0, 0
+
+col1, col2, col3 = st.columns(3)
+with col1: st.metric("Total de Entradas", f"€ {total_in:,.2f}")
+with col2: st.metric("Total de Saídas", f"€ {total_out:,.2f}")
+with col3: st.metric("Saldo Líquido", f"€ {saldo:,.2f}")
+
+st.divider()
+
+# --- TABELA DE DADOS ---
+st.subheader("Faturas Registradas")
+if not df_real.empty:
+    st.dataframe(df_real, use_container_width=True, hide_index=True)
+else:
+    st.info("The spreadsheet is currently empty.")
