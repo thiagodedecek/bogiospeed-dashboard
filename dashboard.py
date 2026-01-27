@@ -4,43 +4,56 @@ import pandas as pd
 # 1. Configuração da página
 st.set_page_config(page_title="BoggioSpeed Management", layout="wide")
 
-# 2. CSS Corrigido para os Cards Coloridos (Igual à sua imagem 32621c)
+# 2. CSS Ultra-específico para forçar as cores (Ignora o tema do sistema)
 st.markdown("""
     <style>
-    /* Estilização dos Cards de Somatório */
+    /* Estilização dos Cards */
     div[data-testid="stMetric"] {
-        background-color: #ffffff;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        background-color: #f8f9fa !important;
+        padding: 20px !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
     }
-    /* Cores das bordas laterais */
-    div[data-testid="stMetric"]:nth-of-type(1) { border-left: 5px solid #28a745; } /* Verde */
-    div[data-testid="stMetric"]:nth-of-type(2) { border-left: 5px solid #dc3545; } /* Vermelho */
-    div[data-testid="stMetric"]:nth-of-type(3) { border-left: 5px solid #6c5ce7; } /* Roxo */
     
-    [data-testid="stMetricValue"] { font-size: 26px; font-weight: bold; }
+    /* Forçar cores dos rótulos e valores para não sumirem no tema escuro */
+    div[data-testid="stMetricLabel"] > div { color: #666666 !important; font-size: 16px !important; }
+    div[data-testid="stMetricValue"] > div { font-size: 32px !important; font-weight: bold !important; }
+
+    /* Bordas e cores dos valores específicos */
+    div[data-testid="stMetric"]:nth-of-type(1) { border-left: 6px solid #28a745 !important; }
+    div[data-testid="stMetric"]:nth-of-type(1) [data-testid="stMetricValue"] > div { color: #28a745 !important; }
     
-    /* Ajuste de botões */
-    .stButton>button { border-radius: 8px; font-weight: bold; }
+    div[data-testid="stMetric"]:nth-of-type(2) { border-left: 6px solid #dc3545 !important; }
+    div[data-testid="stMetric"]:nth-of-type(2) [data-testid="stMetricValue"] > div { color: #dc3545 !important; }
+    
+    div[data-testid="stMetric"]:nth-of-type(3) { border-left: 6px solid #6c5ce7 !important; }
+    div[data-testid="stMetric"]:nth-of-type(3) [data-testid="stMetricValue"] > div { color: #6c5ce7 !important; }
+    
+    /* Botão Adicionar */
+    .stButton>button {
+        background-color: #6c5ce7 !important;
+        color: white !important;
+        border-radius: 8px !important;
+        border: none !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
 # --- CABEÇALHO ---
 st.title("Controle de Faturas")
-# Puxando o email dos secrets ou apenas um texto padrão
-st.caption("Usuário: Admin | BoggioSpeed Management")
+st.caption(f"Usuário: Admin | BoggioSpeed Management")
 
-# --- PAINEL DE SOMATÓRIO (VALORES PARA TESTE VISUAL) ---
+# --- PAINEL DE SOMATÓRIO ---
 st.subheader("Painel de Somatório")
 col1, col2, col3 = st.columns(3)
 
+# Iniciando com zero, como deve ser antes da carga de dados
 with col1:
-    st.metric("Total de Entradas", "€ 1.200,00")
+    st.metric("Total de Entradas", "€ 0,00")
 with col2:
-    st.metric("Total de Saídas", "€ 450,00")
+    st.metric("Total de Saídas", "€ 0,00")
 with col3:
-    st.metric("Saldo Líquido", "€ 750,00")
+    st.metric("Saldo Líquido", "€ 0,00")
 
 st.divider()
 
@@ -49,22 +62,12 @@ col_title, col_btn = st.columns([0.8, 0.2])
 with col_title:
     st.subheader("Faturas Registradas")
 with col_btn:
-    # Botão azul como no protótipo
-    st.button("＋ Adicionar Fatura", type="primary", use_container_width=True)
+    st.button("＋ Adicionar Fatura", use_container_width=True)
 
-# Exemplo de visualização da tabela (Fatos operacionais)
-data_exemplo = {
-    "Nº NOTA": ["137", "138"],
-    "CLIENTE": ["CHIMICAL", "LOGISTIC S.A"],
-    "ENTRADA (€)": ["€ 1.000,00", "€ 200,00"],
-    "FORNECEDOR 1": ["ALA", "FUEL CO"],
-    "SAÍDA F1 (€)": ["€ 400,00", "€ 50,00"],
-    "FORNECEDOR 2": ["-", "-"],
-    "SAÍDA F2 (€)": ["€ 0,00", "€ 0,00"],
-    "AÇÕES": ["📝 | 🗑️", "📝 | 🗑️"]
-}
-df_visual = pd.DataFrame(data_exemplo)
-st.dataframe(df_visual, use_container_width=True, hide_index=True)
+# Tabela vazia com o cabeçalho correto (removi as notas 137 e 138)
+columns = ["Nº NOTA", "CLIENTE", "ENTRADA (€)", "FORNECEDOR 1", "SAÍDA F1 (€)", "FORNECEDOR 2", "SAÍDA F2 (€)", "AÇÕES"]
+df_empty = pd.DataFrame(columns=columns)
+st.dataframe(df_empty, use_container_width=True, hide_index=True)
 
 st.divider()
 st.subheader("Histórico de Ações")
