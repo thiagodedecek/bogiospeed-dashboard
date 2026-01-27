@@ -1,5 +1,5 @@
-gspread
+streamlit==1.28.0
+altair==4.2.2
 pandas
+gspread
 google-auth
-streamlit
-altair
