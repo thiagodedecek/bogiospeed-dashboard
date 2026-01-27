@@ -1,64 +1,71 @@
 import streamlit as st
 import pandas as pd
 
-# Configuração da página para ocupar a tela toda
+# 1. Configuração da página
 st.set_page_config(page_title="BoggioSpeed Management", layout="wide")
 
-# Estilização CSS para os cards (idêntico à imagem 32621c)
+# 2. CSS Corrigido para os Cards Coloridos (Igual à sua imagem 32621c)
 st.markdown("""
     <style>
-    .stMetric {
+    /* Estilização dos Cards de Somatório */
+    div[data-testid="stMetric"] {
         background-color: #ffffff;
-        padding: 20px;
+        padding: 15px;
         border-radius: 10px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        border-left: 5px solid #28a745;
     }
-    [data-testid="stMetricValue"] { font-size: 28px; font-weight: bold; }
-    /* Estilo específico para cada card */
-    div[data-testid="stMetric"]:nth-child(1) { border-left-color: #28a745; } /* Verde */
-    div[data-testid="stMetric"]:nth-child(2) { border-left-color: #dc3545; } /* Vermelho */
-    div[data-testid="stMetric"]:nth-child(3) { border-left-color: #6c5ce7; } /* Roxo */
+    /* Cores das bordas laterais */
+    div[data-testid="stMetric"]:nth-of-type(1) { border-left: 5px solid #28a745; } /* Verde */
+    div[data-testid="stMetric"]:nth-of-type(2) { border-left: 5px solid #dc3545; } /* Vermelho */
+    div[data-testid="stMetric"]:nth-of-type(3) { border-left: 5px solid #6c5ce7; } /* Roxo */
+    
+    [data-testid="stMetricValue"] { font-size: 26px; font-weight: bold; }
+    
+    /* Ajuste de botões */
+    .stButton>button { border-radius: 8px; font-weight: bold; }
     </style>
-    """, unsafe_allow_stdio=True)
+    """, unsafe_allow_html=True)
 
+# --- CABEÇALHO ---
 st.title("Controle de Faturas")
-st.caption(f"Usuário ID: {st.experimental_user.get('email', 'Admin')}")
+# Puxando o email dos secrets ou apenas um texto padrão
+st.caption("Usuário: Admin | BoggioSpeed Management")
 
-# --- PAINEL DE SOMATÓRIO ---
+# --- PAINEL DE SOMATÓRIO (VALORES PARA TESTE VISUAL) ---
 st.subheader("Painel de Somatório")
 col1, col2, col3 = st.columns(3)
 
-# Valores fictícios para teste visual (serão conectados à planilha na próxima etapa)
 with col1:
-    st.metric("Total de Entradas", "R$ 1.000,00")
+    st.metric("Total de Entradas", "€ 1.200,00")
 with col2:
-    st.metric("Total de Saídas", "R$ 500,00")
+    st.metric("Total de Saídas", "€ 450,00")
 with col3:
-    st.metric("Saldo Líquido", "R$ 500,00")
+    st.metric("Saldo Líquido", "€ 750,00")
 
 st.divider()
 
-# --- TABELA DE FATURAS ---
-col_tab, col_btn = st.columns([0.85, 0.15])
-with col_tab:
+# --- ÁREA DA TABELA ---
+col_title, col_btn = st.columns([0.8, 0.2])
+with col_title:
     st.subheader("Faturas Registradas")
 with col_btn:
+    # Botão azul como no protótipo
     st.button("＋ Adicionar Fatura", type="primary", use_container_width=True)
 
-# Exemplo de como a tabela aparecerá
-data = {
-    "Nº NOTA": ["250"],
-    "CLIENTE": ["CHIMICAL"],
-    "ENTRADA (R$)": ["R$ 1.000,00"],
-    "FORNECEDOR 1": ["ALA"],
-    "SAÍDA F1 (R$)": ["R$ 500,00"],
-    "FORNECEDOR 2": ["-"],
-    "SAÍDA F2 (R$)": ["R$ 0,00"],
-    "AÇÕES": ["Editar | Excluir"]
+# Exemplo de visualização da tabela (Fatos operacionais)
+data_exemplo = {
+    "Nº NOTA": ["137", "138"],
+    "CLIENTE": ["CHIMICAL", "LOGISTIC S.A"],
+    "ENTRADA (€)": ["€ 1.000,00", "€ 200,00"],
+    "FORNECEDOR 1": ["ALA", "FUEL CO"],
+    "SAÍDA F1 (€)": ["€ 400,00", "€ 50,00"],
+    "FORNECEDOR 2": ["-", "-"],
+    "SAÍDA F2 (€)": ["€ 0,00", "€ 0,00"],
+    "AÇÕES": ["📝 | 🗑️", "📝 | 🗑️"]
 }
-df_visual = pd.DataFrame(data)
-st.table(df_visual)
+df_visual = pd.DataFrame(data_exemplo)
+st.dataframe(df_visual, use_container_width=True, hide_index=True)
 
+st.divider()
 st.subheader("Histórico de Ações")
-# Aqui entrará a tabela de logs simplificada
+st.info("Aguardando novas operações...")
