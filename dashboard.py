@@ -90,7 +90,7 @@ with st.expander("➕ ADD NEW INVOICE", expanded=True):
         with c2:
             f_sold = st.number_input("Sold Value (€) *", min_value=0.0, format="%.2f")
             f_plate = st.text_input("Plate Nº / Targa")
-            f_kind = st.text_input("Kind of Service", value="Rodoviário")
+            f_kind = st.text_input("Kind of Service", value="Stradale")
         with c3:
             f_closed = st.date_input("Closing Date", date.today())
             f_pay1 = st.number_input("Buyer I Cost (€)", min_value=0.0, format="%.2f")
