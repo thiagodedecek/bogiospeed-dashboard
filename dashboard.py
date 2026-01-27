@@ -56,7 +56,8 @@ spread, df_real = load_data()
 
 # --- CABEÇALHO ---
 try:
-    st.image("logo.png", width=200)
+    st.image("BOGIO-SPEED-Logo-1-1536x217.png", width=200)
+
 except:
     st.header("🚚 BOGIOSPEED SYSTEM")
 
