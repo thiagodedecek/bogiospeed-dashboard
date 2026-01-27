@@ -1,4 +1,5 @@
 streamlit==1.28.0
 altair==4.2.2
 pandas
-gspread-pandas
+gspread-pandas==3.3.0
+
