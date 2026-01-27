@@ -1,43 +1,48 @@
-import streamlit as st
-import pandas as pd
+# --- PAINEL DE SOMATÓRIO (COM CORES FORÇADAS INDIVIDUALMENTE) ---
+st.subheader("Painel de Somatório")
+col1, col2, col3 = st.columns(3)
 
-# 1. Configuração da página e tema forçado
-st.set_page_config(page_title="BoggioSpeed Management", layout="wide")
+with col1:
+    st.markdown("""
+        <style>
+        /* Card 1 - Verde */
+        [data-testid="stHorizontalBlock"] > div:nth-child(1) div[data-testid="stMetric"] {
+            border-left: 8px solid #28a745 !important;
+        }
+        [data-testid="stHorizontalBlock"] > div:nth-child(1) [data-testid="stMetricValue"] > div {
+            color: #28a745 !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    st.metric("Total de Entradas", "€ 0,00")
 
-# --- ESTILIZAÇÃO PARA FORÇAR TEMA CLARO E CORES ---
-st.markdown("""
-    <style>
-    /* Força o fundo da página para um cinza muito claro/branco */
-    .stApp {
-        background-color: #f0f2f6 !important;
-    }
-    
-    /* Títulos em azul escuro para contraste */
-    h1, h2, h3, span, label {
-        color: #1e3d59 !important;
-    }
+with col2:
+    st.markdown("""
+        <style>
+        /* Card 2 - Vermelho */
+        [data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="stMetric"] {
+            border-left: 8px solid #dc3545 !important;
+        }
+        [data-testid="stHorizontalBlock"] > div:nth-child(2) [data-testid="stMetricValue"] > div {
+            color: #dc3545 !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    st.metric("Total de Saídas", "€ 0,00")
 
-    /* Estilização Individual dos Cards de Somatório */
-    div[data-testid="stMetric"] {
-        background-color: #ffffff !important;
-        padding: 20px !important;
-        border-radius: 12px !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-    }
-    
-    /* Cores das Bordas e dos Números (Verde, Vermelho, Roxo) */
-    /* Card 1: Entradas */
-    div[data-testid="stMetric"]:nth-of-type(1) { border-left: 8px solid #28a745 !important; }
-    div[data-testid="stMetric"]:nth-of-type(1) [data-testid="stMetricValue"] > div { color: #28a745 !important; }
-    
-    /* Card 2: Saídas */
-    div[data-testid="stMetric"]:nth-of-type(2) { border-left: 8px solid #dc3545 !important; }
-    div[data-testid="stMetric"]:nth-of-type(2) [data-testid="stMetricValue"] > div { color: #dc3545 !important; }
-    
-    /* Card 3: Saldo */
-    div[data-testid="stMetric"]:nth-of-type(3) { border-left: 8px solid #6c5ce7 !important; }
-    div[data-testid="stMetric"]:nth-of-type(3) [data-testid="stMetricValue"] > div { color: #6c5ce7 !important; }
-
+with col3:
+    st.markdown("""
+        <style>
+        /* Card 3 - Roxo */
+        [data-testid="stHorizontalBlock"] > div:nth-child(3) div[data-testid="stMetric"] {
+            border-left: 8px solid #6c5ce7 !important;
+        }
+        [data-testid="stHorizontalBlock"] > div:nth-child(3) [data-testid="stMetricValue"] > div {
+            color: #6c5ce7 !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    st.metric("Saldo Líquido", "€ 0,00")
     /* Botão "Adicionar Fatura" em Roxo para destaque */
     div.stButton > button:first-child {
         background-color: #6c5ce7 !important;
