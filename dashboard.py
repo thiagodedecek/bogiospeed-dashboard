@@ -121,7 +121,7 @@ with st.expander("➕ Adicionar Fatura", expanded=False):
 
             buyer2 = st.text_input("BUYER II")
 
-            closed = st.selectbox("CLOSED", options=["Yes", "No"])
+            closed = st.date_input("CLOSED (Data de Conclusão)")
 
             inv1 = st.text_input("INV I")
             inv2 = st.text_input("INV II")
@@ -135,7 +135,7 @@ with st.expander("➕ Adicionar Fatura", expanded=False):
             nova_linha = [[
                 job_no, str(date), customer, kind,
                 supplier, supplier2, sold,
-                buyer, buyer2, profit, closed,
+                buyer, buyer2, profit, str(date),
                 inv1, inv2, plate
             ]]
 
