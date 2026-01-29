@@ -3,14 +3,13 @@ import pandas as pd
 from gspread_pandas import Spread
 
 st.set_page_config(page_title="BogioSpeed Management", layout="wide")
+
+# Força fundo branco para tema claro
 st.markdown("""
     <style>
-    .stApp {
-        background-color: white !important;
-    }
+    .stApp { background-color: white !important; }
     </style>
 """, unsafe_allow_html=True)
-
 
 @st.cache_resource
 def load_data():
