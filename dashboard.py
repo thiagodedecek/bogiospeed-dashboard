@@ -134,11 +134,11 @@ with st.expander("➕ Add Invoice", expanded=False):
                 inv1, inv2, plate
             ]]
 
-            spread.sheet.append_rows(
+            spread.client.open("Gestao_BogioSpeed_V2").worksheed("Página1")append_rows*=(
                 nova_linha,
                 value_input_option='USER_ENTERED',
                 insert_data_option='INSERT_ROWS',
-                table_range='Página1!A2'
+                
             )
 
             st.success("✅ Invoice saved successfully!")
