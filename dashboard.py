@@ -76,7 +76,7 @@ if os.path.exists(logo_path):
 else:
     st.header("🚚 BOGIOSPEED SYSTEM")
 
-st.title("Controle de Faturas")
+st.title("Invoice Management")
 
 # -----------------------------------------------------------
 # LISTAS SUSPENSAS DINÂMICAS
@@ -154,24 +154,28 @@ with st.expander("➕ Adicionar Fatura", expanded=False):
 # -----------------------------------------------------------
 
 st.divider()
-st.subheader("📊 Painel de Somatório")
+st.subheader("📊 Summary Panel")
 
 if not df_real.empty:
-    total_sold = pd.to_numeric(df_real["SOLD"], errors='coerce').sum()
-    total_profit = pd.to_numeric(df_real["PROFIT"], errors='coerce').sum()
+    total_revenue = pd.to_numeric(df_real["REVENUE"], errors='coerce').sum()
+    total_expenses = pd.to_numeric(df_real["BUYER"], errors='coerce').fillna(0) + pd.to_numeric(df_real["BUYER II"], errors='coerce').fillna(0)
+    total_expenses = total_expenses.sum()
+    net_balance = total_revenue - total_expenses
 else:
-    total_sold, total_profit = 0, 0
+    total_revenue = total_expenses = net_balance = 0
 
-col1, col2 = st.columns(2)
-col1.metric("Total Vendido", f"€ {total_sold:,.2f}")
-col2.metric("Lucro Total", f"€ {total_profit:,.2f}")
+col1, col2, col3 = st.columns(3)
+col1.metric("Total Revenue", f"€ {total_revenue:,.2f}")
+col2.metric("Total Expenses", f"€ {total_expenses:,.2f}")
+col3.metric("Net Balance", f"€ {net_balance:,.2f}")
+
 
 # -----------------------------------------------------------
 # TABELA DE FATURAS
 # -----------------------------------------------------------
 
 st.divider()
-st.subheader("📁 Faturas Registradas")
+st.subheader("📁 Registered Invoices")
 
 if not df_real.empty:
     st.dataframe(df_real, use_container_width=True, hide_index=True)
