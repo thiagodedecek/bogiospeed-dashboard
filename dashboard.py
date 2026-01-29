@@ -134,11 +134,11 @@ with st.expander("➕ Add Invoice", expanded=False):
                 inv1, inv2, plate
             ]]
 
-            spread.df_to_sheet(
-                pd.DataFrame(nova_linha),
-                index=False,
-                sheet='Sheet1',
-                replace=False
+            spread.sheet.append_rows(
+                nova_linha,
+                value_input_option='USER_ENTERED',
+                insert_data_option='INSERT_ROWS',
+                table_range='Página1!A2'
             )
 
             st.success("✅ Invoice saved successfully!")
