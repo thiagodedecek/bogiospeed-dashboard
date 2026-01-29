@@ -128,26 +128,23 @@ with st.expander("➕ Add Invoice", expanded=False):
 
         profit = sold - (buyer + buyer2)
 
-        if st.form_submit_button("Save Invoice"):
-            nova_linha = [[
-                job_no, str(date), customer, kind,
-                supplier, supplier2, sold,
-                buyer, buyer2, profit, str(closed),
-                inv1, inv2, plate
-            ]]
+if st.form_submit_button("Save Invoice"):
+    nova_linha = [[
+        job_no, str(date), customer, kind,
+        supplier, supplier2, sold,
+        buyer, buyer2, profit, str(closed),
+        inv1, inv2, plate
+    ]]
 
-            spread.df_to_sheet(
-                pd.DataFrame(nova_linha),
-                index=False,
-                sheet='Sheet1',
-                replace=False
-            )
+    spread.df_to_sheet(
+        pd.DataFrame(nova_linha),
+        index=False,
+        sheet='Sheet1',
+        replace=False
+    )
 
-
-            )
-
-            st.success("✅ Invoice saved successfully!")
-            st.rerun()
+    st.success("✅ Invoice saved successfully!")
+    st.rerun()
 
 st.divider()
 st.subheader("📊 Summary Panel")
