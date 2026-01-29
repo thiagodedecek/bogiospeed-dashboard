@@ -3,13 +3,45 @@ import pandas as pd
 from gspread_pandas import Spread
 
 st.set_page_config(page_title="BogioSpeed Management", layout="wide")
-
-# Força fundo branco para tema claro
 st.markdown("""
-    <style>
-    .stApp { background-color: white !important; }
-    </style>
+<style>
+.stApp {
+    background-color: #f8f9fa !important;
+}
+
+input, textarea, select, .stTextInput input, .stNumberInput input {
+    background-color: white !important;
+    color: black !important;
+}
+
+div[data-testid="column"] div[data-testid="stMetric"] {
+    background-color: white !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
+}
+
+div[data-testid="column"]:nth-of-type(1) div[data-testid="stMetric"] {
+    border-left: 8px solid #28a745 !important;
+}
+div[data-testid="column"]:nth-of-type(2) div[data-testid="stMetric"] {
+    border-left: 8px solid #dc3545 !important;
+}
+div[data-testid="column"]:nth-of-type(3) div[data-testid="stMetric"] {
+    border-left: 8px solid #6c5ce7 !important;
+}
+
+div.stButton > button {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+    font-weight: bold !important;
+    border: none !important;
+}
+
+h1, h2, h3, p { color: #1e3d59 !important; }
+</style>
 """, unsafe_allow_html=True)
+
 
 @st.cache_resource
 def load_data():
