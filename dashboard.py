@@ -139,8 +139,11 @@ with st.expander("➕ Add Invoice", expanded=False):
             spread.df_to_sheet(
                 pd.DataFrame(nova_linha),
                 index=False,
-                header=False,
-                start='A' + str(len(df_real) + 2)
+                sheet='Sheet1',
+                replace=False
+            )
+
+
             )
 
             st.success("✅ Invoice saved successfully!")
