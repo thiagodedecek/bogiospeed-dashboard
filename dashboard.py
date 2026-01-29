@@ -166,4 +166,4 @@ st.subheader("📁 Registered Invoices")
 if not df_real.empty:
     st.dataframe(df_real, use_container_width=True, hide_index=True)
 else:
-    st.info("
+    st.info("📭 No invoices registered yet.")
