@@ -142,7 +142,7 @@ with st.expander("➕ Add Invoice", expanded=False):
             )
 
             st.success("✅ Invoice saved successfully!")
-            st.rerun()
+            
 
 st.divider()
 st.subheader("📊 Summary Panel")
