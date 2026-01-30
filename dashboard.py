@@ -163,9 +163,9 @@ else:
     total_revenue = total_expenses = net_balance = 0
 
 col1, col2, col3 = st.columns(3)
-col1.metric("Total Revenue", f"€ {total_revenue:,.2f}")
-col2.metric("Total Expenses", f"€ {total_expenses:,.2f}")
-col3.metric("Net Balance", f"€ {net_balance:,.2f}")
+with col1: st.markdown(f""" <div style="background-color:#f0f2f6; padding:20px; border-radius:10px; text-align:center;"> <h4 style="color:#333;">Total Revenue</h4> <p style="font-size:24px; color:#007200;"><strong>€ {total_revenue:,.2f}</strong></p> </div> """, unsafe_allow_html=True)
+with col2: st.markdown(f""" <div style="background-color:#f0f2f6; padding:20px; border-radius:10px; text-align:center;"> <h4 style="color:#333;">Total Expenses</h4> <p style="font-size:24px; color:#8B0000;"><strong>€ {total_expenses:,.2f}</strong></p> </div> """, unsafe_allow_html=True)
+with col3: st.markdown(f""" <div style="background-color:#f0f2f6; padding:20px; border-radius:10px; text-align:center;"> <h4 style="color:#333;">Net Balance</h4> <p style="font-size:24px; color:#4B0082;"><strong>€ {net_balance:,.2f}</strong></p> </div> """, unsafe_allow_html=True)
 
 st.divider()
 st.subheader("📁 Registered Invoices")
