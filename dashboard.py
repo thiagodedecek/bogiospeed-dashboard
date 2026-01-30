@@ -51,7 +51,7 @@ def load_data():
         return None, pd.DataFrame()
 
 spread, df_real = load_data()
-st.write(df_real.columns.tolist())
+
 
 logo_path = "BOGIO-SPEED-Logo-1-1536x217.png"
 if logo_path:
@@ -149,8 +149,8 @@ st.divider()
 st.subheader("📊 Summary Panel")
 
 if not df_real.empty:
-    cols = df_real.columns.str.strip()
-    df_real.columns = cols
+    df_real.columns = df_real.columns.str.strip()
+    
     total_revenue = pd.to_numeric(df_real["SOLD"], errors='coerce').sum()
     buyer1 = pd.to_numeric(df_real["BUYER"], errors='coerce').fillna(0)
     buyer2 = pd.to_numeric(df_real["BUYER II"], errors='coerce').fillna(0)
