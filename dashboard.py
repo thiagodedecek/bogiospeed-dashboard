@@ -148,9 +148,12 @@ st.divider()
 st.subheader("📊 Summary Panel")
 
 if not df_real.empty:
+    cols = def_real.columns.str.strip()
+    def_real.columns = cols
     total_revenue = pd.to_numeric(df_real["SOLD"], errors='coerce').sum()
-    total_expenses = pd.to_numeric(df_real["BUYER"], errors='coerce').fillna(0) + pd.to_numeric(df_real["BUYER II"], errors='coerce').fillna(0)
-    total_expenses = total_expenses.sum()
+    buyer1 = pd.to_numeric(df_real["BUYER"], errors='coerce').fillna(0)
+    buyer2 = pd.to_numeric(df_real["BUYER II"], errors='coerce').fillna(0)
+    total_expenses = (buyer1 + buyer2).sum()
     net_balance = total_revenue - total_expenses
 else:
     total_revenue = total_expenses = net_balance = 0
