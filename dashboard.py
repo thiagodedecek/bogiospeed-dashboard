@@ -51,6 +51,7 @@ def load_data():
         return None, pd.DataFrame()
 
 spread, df_real = load_data()
+st.write(df_real.columns.tolist())
 
 logo_path = "BOGIO-SPEED-Logo-1-1536x217.png"
 if logo_path:
