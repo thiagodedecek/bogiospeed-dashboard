@@ -143,6 +143,7 @@ with st.expander("➕ Add Invoice", expanded=False):
             )
 
             st.success("✅ Invoice saved successfully!")
+            spread, df_real = load_data()
             
 
 st.divider()
