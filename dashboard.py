@@ -126,6 +126,8 @@ with st.expander("➕ Add Invoice", expanded=False):
 
         profit = sold - (buyer + buyer2)
 
+        spread, df_real = load_data()
+
         submitted = st.form_submit_button("Save Invoice")
         if submitted:
             nova_linha = [[
